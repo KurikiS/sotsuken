@@ -1,0 +1,34 @@
+data SVal = SVal { match :: Int} deriving (Eq, Show)
+
+bipartitematching g = 
+  let init v = SVal(-1);
+      ss0 v = SVal(if ((vid v > 5) && val v.^match == -1)
+                   then random (-1) [ vid u | (e,u) <- is v, val u .^ match == -1 ]
+                   else val v.^match);
+      ss1 v = SVal(if ((vid v <= 5) && val v.^match == -1) 
+                   then random (-1) [ if(val u .^ match == vid v) then vid u else (-1) | (e,u) <- is v]
+                   else val v.^match);
+      ss2 v = SVal(if ((vid v > 5) && val v.^match /= -1) 
+                   then random (-1) [ if(val u .^ match == vid v) then vid u else (-1) | (e,u) <- is v] 
+                   else val v.^match); 
+      step g = let g1 = gmap ss0 g;
+                   g2 = gmap ss1 g1;
+                   g3 = gmap ss2 g2
+               in g3
+  in giter init step Fix g
+
+
+{-
+data BM = BM { match :: Int } deriving (Eq, Show)
+bimatch g = 
+  let init v = BM (-1);
+      ss0 v = BM (if (vid v`mod`2 == 0 && val v.^match == -1) then random (-1) [ vid u | (e,u) <- is v, val u.^match == -1 ] else val v.^match);
+      ss1 v = BM (if (vid v`mod`2 == 1 && val v.^match == -1) then random (-1) [ vid u | (e,u)<-is v, val u.^match == vid v ] else val v.^match);
+      ss2 v = BM (if (vid v`mod`2 == 0 && val v.^match /= -1) then random (-1) [ vid u | (e,u)<-is v, val u.^match == vid v ] else val v.^match);
+      step g = let g1 = gmap ss0 g;
+                   g2 = gmap ss1 g1;
+                   g3 = gmap ss2 g2
+               in g3
+  in giter init step Fix g
+
+ -}
